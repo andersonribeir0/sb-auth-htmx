@@ -5,8 +5,9 @@ all: build
 
 build:
 	@echo "Building..."
-	
-	@go build -o main cmd/api/main.go
+	@npx tailwindcss -i cmd/web/view/css/app.css -o cmd/web/public/styles.css --config ./cmd/web/tailwind.config.js
+	@templ generate cmd/web/view
+	@mkdir -p bin && go build -o bin/dreampicai cmd/api/main.go
 
 # Run the application
 run:
