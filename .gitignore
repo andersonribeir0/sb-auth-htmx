@@ -18,6 +18,8 @@
 # Go workspace file
 go.work
 tmp/
+bin/
+cmd/web/public/
 
 # IDE specific files
 .vscode
