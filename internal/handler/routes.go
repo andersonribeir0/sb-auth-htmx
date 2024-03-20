@@ -52,24 +52,14 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Use(WithUser)
 	r.Handle("/*", http.StripPrefix("/", http.FileServer(http.FS(web.Files))))
 
-	r.Get("/", s.HelloWorldHandler)
-
 	r.Get("/health", s.healthHandler)
-	r.Get("/home", MakeHandler("home", s.HandleHomeIndex))
-	r.Get("/login", MakeHandler("login", s.HandleLoginIndex))
+
+	r.Get("/", MakeHandler("home_index", s.HandleHomeIndex))
+	r.Get("/home", MakeHandler("home_index", s.HandleHomeIndex))
+	r.Get("/login", MakeHandler("login_index", s.HandleLoginIndex))
+	r.Post("/login", MakeHandler("login_post", s.HandleLoginPost))
+
 	return r
-}
-
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := make(map[string]string)
-	resp["message"] = "Hello World"
-
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		log.Fatalf("error handling JSON marshal. Err: %v", err)
-	}
-
-	_, _ = w.Write(jsonResp)
 }
 
 func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {

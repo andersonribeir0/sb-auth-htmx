@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"dreampicai/internal/handler"
+	"dreampicai/pkg/sb"
 
 	"github.com/joho/godotenv"
 )
@@ -14,6 +15,10 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := sb.Init(); err != nil {
 		log.Fatal(err)
 	}
 

@@ -6,8 +6,13 @@ import (
 
 	"dreampicai/types"
 
+	"github.com/a-h/templ"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
+
+func render(r *http.Request, w http.ResponseWriter, component templ.Component) error {
+	return component.Render(r.Context(), w)
+}
 
 func getAuthenticatedUser(r *http.Request) types.AuthenticatedUser {
 	user, ok := r.Context().Value(types.UserContextKey).(types.AuthenticatedUser)

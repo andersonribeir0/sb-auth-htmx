@@ -1,6 +1,15 @@
 package auth
 
-import "dreampicai/cmd/web/view/layout"
+import (
+    "dreampicai/cmd/web/view/layout"
+    "github.com/nedpals/supabase-go"
+)
+
+type LoginErrors struct {
+    Email string
+    Password string
+    InvalidCredentials string
+}
 
 templ Login() {
 	@layout.App(false) {
@@ -8,28 +17,37 @@ templ Login() {
             <div class="max-w-screen-sm w-full bg-base-300 p-8 rounded-xl">
                 <h1 class="text-center text-xl font-black mb-10">Login to dreampicai</h1>
                 <div>
-                    <label class="form-control w-full">
-                        <div class="label">
-                            <span class="label-text">Email address</span>
-                        </div>
-                        <input type="email" placeholder="Type here" class="input input-bordered w-full" />
-                        <div class="label">
-                            <span class="label-text-alt text-error">error message</span>
-                        </div>
-                    </label>
-                    <label class="form-control w-full">
-                        <div class="label">
-                            <span class="label-text">Password</span>
-                        </div>
-                        <input type="password" required autocomplete="off" placeholder="Type here" class="input input-bordered w-full" />
-                        <div class="label">
-                            <span class="label-text-alt text-error">error message</span>
-                        </div>
-                    </label>
-                    <button class="btn btn-primary w-full">Login</button>
+                   @LoginForm(supabase.UserCredentials{}, LoginErrors{})
                 </div>
             </div>
         </div>
 	}
+}
+
+templ LoginForm(creds supabase.UserCredentials, loginErrors LoginErrors) {
+   <form hx-post="/login" hx-swap="outerHTML"> 
+        <label class="form-control w-full">
+            <div class="label">
+                <span class="label-text">Email address</span>
+            </div>
+            <input name="email" type="email" value={ creds.Email } placeholder="Type here" class="input input-bordered w-full" />
+            <div class="label">
+                <span class="label-text-alt text-error">{ loginErrors.Email}</span>
+            </div>
+        </label>
+        <label class="form-control w-full">
+            <div class="label">
+                <span class="label-text">Password</span>
+            </div>
+            <input name="password" type="password" required autocomplete="off" placeholder="Type here" class="input input-bordered w-full" />
+            <div class="label">
+                <span class="label-text-alt text-error">{ loginErrors.Password }</span>
+            </div>
+        </label>
+        if len(loginErrors.InvalidCredentials) > 0 {
+            <div class="text-error text-sm">{ loginErrors.InvalidCredentials }</div>
+        }
+        <button class="btn btn-primary w-full">Login</button>
+    </form>
 }
 
