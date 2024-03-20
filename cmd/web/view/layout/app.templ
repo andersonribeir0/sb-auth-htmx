@@ -1,6 +1,6 @@
 package layout
 
-//import "dreampicai/cmd/web/view/ui"
+import "dreampicai/cmd/web/view/components"
 
 templ App(nav bool) {
 	<!DOCTYPE html>
@@ -15,14 +15,9 @@ templ App(nav bool) {
 			<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/js/all.min.js"></script>
 		</head>
 		<body class="antialiased">
-			<h1 class="text-3xl font-bold underline">
-				Hello world!
-    		</h1>
 			if nav {
-				navigation
+				@components.Navigation()
 			}
-			<button class="btn">Hello daisyUI</button>
-
 			{ children... }
 		</body>
 	</html>

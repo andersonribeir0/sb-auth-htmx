@@ -1,0 +1,32 @@
+package components
+
+import (
+	"dreampicai/cmd/web/view"
+)
+
+templ Navigation() {
+	<div class="navbar bg-base-100 border-b border-gray-700">
+		<div class="flex-1">
+			<a class="text-2xl font-black text-primary">dreampicai</a>
+		</div>
+		<div class="flex-none">
+			<ul class="menu menu-horizontal px-1">
+				if view.AuthenticatedUser(ctx).IsLoggedIn {
+					<li>
+						<details>
+							<summary> { view.AuthenticatedUser(ctx).Email }</summary>
+							<ul class="bg-base-100 rounded-t-none p-2">
+								<li><a>Profile</a></li>
+								<li><a>Settings</a></li>
+								<li><a>Logout</a></li>
+							</ul>
+						</details>
+					</li>
+				} else {
+					<a class="btn btn-primary">Login</a>
+				}
+			</ul>
+		</div>
+	</div>
+}
+

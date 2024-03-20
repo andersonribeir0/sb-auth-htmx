@@ -1,0 +1,35 @@
+package auth
+
+import "dreampicai/cmd/web/view/layout"
+
+templ Login() {
+	@layout.App(false) {
+		<div class="flex justify-center mt-[calc(100vh-100vh+8rem)]">
+            <div class="max-w-screen-sm w-full bg-base-300 p-8 rounded-xl">
+                <h1 class="text-center text-xl font-black mb-10">Login to dreampicai</h1>
+                <div>
+                    <label class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Email address</span>
+                        </div>
+                        <input type="email" placeholder="Type here" class="input input-bordered w-full" />
+                        <div class="label">
+                            <span class="label-text-alt text-error">error message</span>
+                        </div>
+                    </label>
+                    <label class="form-control w-full">
+                        <div class="label">
+                            <span class="label-text">Password</span>
+                        </div>
+                        <input type="password" required autocomplete="off" placeholder="Type here" class="input input-bordered w-full" />
+                        <div class="label">
+                            <span class="label-text-alt text-error">error message</span>
+                        </div>
+                    </label>
+                    <button class="btn btn-primary w-full">Login</button>
+                </div>
+            </div>
+        </div>
+	}
+}
+
