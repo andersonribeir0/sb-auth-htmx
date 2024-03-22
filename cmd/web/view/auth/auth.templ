@@ -14,40 +14,117 @@ type LoginErrors struct {
 templ Login() {
 	@layout.App(false) {
 		<div class="flex justify-center mt-[calc(100vh-100vh+8rem)]">
-            <div class="max-w-screen-sm w-full bg-base-300 p-8 rounded-xl">
-                <h1 class="text-center text-xl font-black mb-10">Login to dreampicai</h1>
-                <div>
-                   @LoginForm(supabase.UserCredentials{}, LoginErrors{})
-                </div>
-            </div>
-        </div>
+			<div class="max-w-screen-sm w-full bg-base-300 p-8 rounded-xl">
+				<h1 class="text-center text-xl font-black mb-10">Login to dreampicai</h1>
+				<div>
+					@LoginForm(supabase.UserCredentials{}, LoginErrors{})
+				</div>
+			</div>
+		</div>
 	}
 }
 
 templ LoginForm(creds supabase.UserCredentials, loginErrors LoginErrors) {
-   <form hx-post="/login" hx-swap="outerHTML"> 
-        <label class="form-control w-full">
-            <div class="label">
-                <span class="label-text">Email address</span>
-            </div>
-            <input name="email" type="email" value={ creds.Email } placeholder="Type here" class="input input-bordered w-full" />
-            <div class="label">
-                <span class="label-text-alt text-error">{ loginErrors.Email}</span>
-            </div>
-        </label>
-        <label class="form-control w-full">
-            <div class="label">
-                <span class="label-text">Password</span>
-            </div>
-            <input name="password" type="password" required autocomplete="off" placeholder="Type here" class="input input-bordered w-full" />
-            <div class="label">
-                <span class="label-text-alt text-error">{ loginErrors.Password }</span>
-            </div>
-        </label>
-        if len(loginErrors.InvalidCredentials) > 0 {
-            <div class="text-error text-sm">{ loginErrors.InvalidCredentials }</div>
-        }
-        <button class="btn btn-primary w-full">Login</button>
-    </form>
+	<form hx-post="/login" hx-swap="outerHTML">
+		<label class="form-control w-full">
+			<div class="label">
+				<span class="label-text">Email address</span>
+			</div>
+			<input name="email" type="email" value={ creds.Email } placeholder="Type here" class="input input-bordered w-full"/>
+			<div class="label">
+				<span class="label-text-alt text-error">{ loginErrors.Email }</span>
+			</div>
+		</label>
+		<label class="form-control w-full">
+			<div class="label">
+				<span class="label-text">Password</span>
+			</div>
+			<input name="password" type="password" required autocomplete="off" placeholder="Type here" class="input input-bordered w-full"/>
+			<div class="label">
+				<span class="label-text-alt text-error">{ loginErrors.Password }</span>
+			</div>
+		</label>
+		if len(loginErrors.InvalidCredentials) > 0 {
+			<div class="text-error text-sm">{ loginErrors.InvalidCredentials }</div>
+		}
+		<button type="submit" class="btn btn-primary w-full">Login <i class="fa-solid fa-arrow-right"></i></button>
+        <div class="divider">OR</div>
+        <a href="/login/provider/google" class="btn btn-outline w-full">Login with Google<i class="fa-brands fa-google"></i></a>
+	</form>
 }
 
+type SignupParams struct {
+    Email           string
+    Password        string
+    ConfirmPassword string
+}
+
+type SignupErrors struct {
+    Email           string
+    Password        string
+    ConfirmPassword string
+	SignupErr 	    string
+}
+
+templ Signup() {
+	@layout.App(false) {
+		<div class="flex justify-center mt-[calc(100vh-100vh+8rem)]">
+			<div class="max-w-screen-sm w-full bg-base-300 p-8 rounded-xl">
+				<h1 class="text-center text-xl font-black mb-10">Signup to dreampicai</h1>
+				<div>
+					@SignupForm(SignupParams{}, SignupErrors{})
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ SignupForm(params SignupParams, errors SignupErrors) {
+	<form hx-post="/signup" hx-swap="outerHTML">
+		<label class="form-control w-full">
+			<div class="label">
+				<span class="label-text">Email address</span>
+			</div>
+			<input name="email" type="email" value={ params.Email } placeholder="Type here" class="input input-bordered w-full"/>
+			<div class="label">
+				<span class="label-text-alt text-error">{ errors.Email }</span>
+			</div>
+		</label>
+		<label class="form-control w-full">
+			<div class="label">
+				<span class="label-text">Password</span>
+			</div>
+			<input name="password" type="password" required autocomplete="off" placeholder="Type here" class="input input-bordered w-full"/>
+			<div class="label">
+				<span class="label-text-alt text-error">{ errors.Password }</span>
+			</div>
+		</label>
+		<label class="form-control w-full">
+			<div class="label">
+				<span class="label-text">Confirm Password</span>
+			</div>
+			<input name="confirmPassword" type="password" required autocomplete="off" placeholder="Type here" class="input input-bordered w-full"/>
+			<div class="label">
+				<span class="label-text-alt text-error">{ errors.ConfirmPassword }</span>
+			</div>
+		</label>
+		if len(errors.SignupErr) > 0 {
+			<div class="text-error text-sm">{ errors.SignupErr }</div>
+		}
+		<button class="btn btn-primary w-full">Confirm</button>
+	</form>
+}
+
+templ SignupSuccess(email string) {
+	<div>
+        A confirmation email has been sent to: <span class="font-semibold text-success">{ email }</span>
+    </div>
+}
+
+templ CallbackScript() {
+    <script>
+        var url = window.location.href;
+        var newUrl = url.replace("#", "?")
+        window.location = newUrl
+    </script>
+}

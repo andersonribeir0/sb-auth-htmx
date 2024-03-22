@@ -14,19 +14,26 @@ templ Navigation() {
 				if view.AuthenticatedUser(ctx).IsLoggedIn {
 					<li>
 						<details>
-							<summary> { view.AuthenticatedUser(ctx).Email }</summary>
+							<summary>{ view.AuthenticatedUser(ctx).Email }</summary>
 							<ul class="bg-base-100 rounded-t-none p-2">
 								<li><a>Profile</a></li>
 								<li><a>Settings</a></li>
-								<li><a>Logout</a></li>
+								@LogoutForm()
 							</ul>
 						</details>
 					</li>
 				} else {
-					<a class="btn btn-primary">Login</a>
+					<a href="/login" class="btn btn-primary" >Login</a>
 				}
 			</ul>
 		</div>
 	</div>
+}
+
+templ LogoutForm() {
+	<form method="POST" action="/logout">
+		<li><button type="submit" class="btn">Logout</button></li>
+	</form>
+
 }
 

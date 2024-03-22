@@ -31,7 +31,6 @@ type Messages map[string]string
 func Password() RuleSet {
 	return RuleSet{
 		Name: "password",
-		//RuleValue: n,
 		ValidateFunc: func(set RuleSet) bool {
 			str, ok := set.FieldValue.(string)
 			if !ok {

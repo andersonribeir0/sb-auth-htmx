@@ -57,7 +57,17 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Get("/", MakeHandler("home_index", s.HandleHomeIndex))
 	r.Get("/home", MakeHandler("home_index", s.HandleHomeIndex))
 	r.Get("/login", MakeHandler("login_index", s.HandleLoginIndex))
+	r.Get("/login/provider/google", MakeHandler("login_provider_google", s.HandleLoginWithGoogle))
 	r.Post("/login", MakeHandler("login_post", s.HandleLoginPost))
+	r.Post("/logout", MakeHandler("logout_post", s.HandleLogoutPost))
+	r.Get("/auth/callback", MakeHandler("auth_callback_get", s.HandleAuthCallback))
+	r.Get("/signup", MakeHandler("signup_index", s.HandleSignupIndex))
+	r.Post("/signup", MakeHandler("signup_post", s.HandleSignupPost))
+
+	r.Group(func(r chi.Router) {
+		r.Use(WithAuth)
+		r.Get("/settings", MakeHandler("settings_index", s.HandleSettingsIndex))
+	})
 
 	return r
 }

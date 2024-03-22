@@ -1,0 +1,15 @@
+package settings
+
+import "dreampicai/types"
+import "dreampicai/cmd/web/view/layout"
+
+templ Index(user types.AuthenticatedUser) {
+	@layout.App(true) {
+		if user.IsLoggedIn {
+			<div class="text-primary">{ user.Email } settings</div>
+		} else {
+			<div class="text-error">this should not happen</div>
+		}
+	}
+}
+
