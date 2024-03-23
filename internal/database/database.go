@@ -5,19 +5,24 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"log/slog"
 	"os"
 	"time"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
+	"github.com/uptrace/bun"
+	"github.com/uptrace/bun/dialect/pgdialect"
+	"github.com/uptrace/bun/extra/bundebug"
 )
 
 type Service interface {
 	Health() map[string]string
+	DB() *sql.DB
 }
 
 type service struct {
-	db *sql.DB
+	db *bun.DB
 }
 
 var (
@@ -29,13 +34,25 @@ var (
 )
 
 func New() Service {
-	connStr := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", username, password, host, port, database)
+	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s", username, password, host, port, database)
+	slog.Info("connStr", "value", connStr)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
+		slog.Error("sql open err", "err", err)
 		log.Fatal(err)
 	}
-	s := &service{db: db}
+
+	s := &service{db: bun.NewDB(db, pgdialect.New())}
+
+	if len(os.Getenv("DEBUG")) > 0 {
+		s.db.AddQueryHook(bundebug.NewQueryHook(bundebug.WithVerbose(true)))
+	}
+
 	return s
+}
+
+func (s *service) DB() *sql.DB {
+	return s.db.DB
 }
 
 func (s *service) Health() map[string]string {

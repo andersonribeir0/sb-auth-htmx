@@ -8,7 +8,9 @@ import (
 	"dreampicai/cmd/web/view/auth"
 	"dreampicai/pkg/kit/validate"
 	"dreampicai/pkg/sb"
+	"dreampicai/types"
 
+	"github.com/gorilla/sessions"
 	"github.com/nedpals/supabase-go"
 )
 
@@ -73,7 +75,7 @@ func (s *Server) HandleLoginPost(w http.ResponseWriter, r *http.Request) error {
 		}))
 	}
 
-	setAuthCookie(w, resp.AccessToken)
+	setAuthCookie(w, r, resp.AccessToken)
 
 	return hxRedirect(w, r, "/")
 }
@@ -84,23 +86,18 @@ func (s *Server) HandleAuthCallback(w http.ResponseWriter, r *http.Request) erro
 		return render(r, w, auth.CallbackScript())
 	}
 
-	setAuthCookie(w, accessToken)
+	setAuthCookie(w, r, accessToken)
 
 	return hxRedirect(w, r, "/")
 }
 
 func (s *Server) HandleLogoutPost(w http.ResponseWriter, r *http.Request) error {
-	cookie := http.Cookie{
-		Name:       "at",
-		Value:      "",
-		Path:       "/",
-		RawExpires: "",
-		Secure:     true,
-		HttpOnly:   true,
-		MaxAge:     -1,
+	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
+	sess, _ := store.Get(r, types.UserContextKey)
+	sess.Values[types.AccessTokenKey] = ""
+	if err := sess.Save(r, w); err != nil {
+		return err
 	}
-
-	http.SetCookie(w, &cookie)
 
 	return hxRedirect(w, r, "/")
 }
@@ -117,14 +114,13 @@ func (s *Server) HandleLoginWithGoogle(w http.ResponseWriter, r *http.Request) e
 	return hxRedirect(w, r, resp.URL)
 }
 
-func setAuthCookie(w http.ResponseWriter, accessToken string) {
-	cookie := &http.Cookie{
-		Value:    accessToken,
-		Name:     "at",
-		Path:     "/",
-		HttpOnly: true,
-		Secure:   true,
+func setAuthCookie(w http.ResponseWriter, r *http.Request, accessToken string) error {
+	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
+	sess, _ := store.Get(r, types.UserContextKey)
+	sess.Values[types.AccessTokenKey] = accessToken
+	if err := sess.Save(r, w); err != nil {
+		return err
 	}
 
-	http.SetCookie(w, cookie)
+	return sess.Save(r, w)
 }

@@ -41,6 +41,10 @@ clean:
 	@echo "Cleaning..."
 	@rm -f main
 
+# Run migration up or down (specify with MIGRATE=up or MIGRATE=down)
+migrate:
+	@go run cmd/migrate/main.go -migrate $(MIGRATE)
+
 # Live Reload
 watch:
 	@if command -v air > /dev/null; then \
