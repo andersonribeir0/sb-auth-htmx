@@ -9,6 +9,8 @@ import (
 	"os"
 	"time"
 
+	"dreampicai/types"
+
 	_ "github.com/jackc/pgx/v5/stdlib"
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/uptrace/bun"
@@ -18,24 +20,34 @@ import (
 
 type Service interface {
 	Health() map[string]string
-	DB() *sql.DB
+	CreateAccount(ctx context.Context, account *types.Account) error
+}
+
+type MigrationServiceProvider interface {
+	DB() *bun.DB
 }
 
 type service struct {
 	db *bun.DB
 }
 
-var (
-	database = os.Getenv("DB_DATABASE")
-	password = os.Getenv("DB_PASSWORD")
-	username = os.Getenv("DB_USERNAME")
-	port     = os.Getenv("DB_PORT")
-	host     = os.Getenv("DB_HOST")
-)
+func NewMigrationSvcProvider() MigrationServiceProvider {
+	return newSvc()
+}
 
 func New() Service {
-	connStr := fmt.Sprintf("user=%s password=%s host=%s port=%s dbname=%s", username, password, host, port, database)
-	slog.Info("connStr", "value", connStr)
+	return newSvc()
+}
+
+func newSvc() *service {
+	var (
+		host     = os.Getenv("DB_HOSTNAME")
+		database = os.Getenv("DB_DATABASE")
+		password = os.Getenv("DB_PASSWORD")
+		username = os.Getenv("DB_USERNAME")
+		port     = os.Getenv("DB_PORT")
+	)
+	connStr := fmt.Sprintf("host=%s user=%s password=%s port=%s dbname=%s", host, username, password, port, database)
 	db, err := sql.Open("pgx", connStr)
 	if err != nil {
 		slog.Error("sql open err", "err", err)
@@ -51,8 +63,8 @@ func New() Service {
 	return s
 }
 
-func (s *service) DB() *sql.DB {
-	return s.db.DB
+func (s *service) DB() *bun.DB {
+	return s.db
 }
 
 func (s *service) Health() map[string]string {
@@ -67,4 +79,9 @@ func (s *service) Health() map[string]string {
 	return map[string]string{
 		"message": "It's healthy",
 	}
+}
+
+func (s *service) CreateAccount(ctx context.Context, account *types.Account) error {
+	_, err := s.db.NewInsert().Model(account).Exec(ctx)
+	return err
 }

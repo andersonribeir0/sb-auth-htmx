@@ -7,7 +7,6 @@ import (
 	"net/http"
 
 	"dreampicai/cmd/web"
-	"dreampicai/cmd/web/view/home"
 
 	_ "dreampicai/cmd/web"
 
@@ -75,8 +74,4 @@ func (s *Server) RegisterRoutes() http.Handler {
 func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
 	jsonResp, _ := json.Marshal(s.db.Health())
 	_, _ = w.Write(jsonResp)
-}
-
-func (s *Server) HandleHomeIndex(w http.ResponseWriter, r *http.Request) error {
-	return home.Index().Render(r.Context(), w)
 }

@@ -4,10 +4,13 @@ import (
 	"embed"
 	"flag"
 	"fmt"
+	"log"
+	"os"
 
 	"dreampicai/internal/database"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/joho/godotenv"
 	"github.com/pressly/goose/v3"
 )
 
@@ -15,11 +18,16 @@ import (
 var embedMigrations embed.FS
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(os.Getenv("DB_HOSTNAME"))
 	var migrate string
 	flag.StringVar(&migrate, "migrate", "", "Direction to migrate the database (up or down)")
 	flag.Parse()
 
-	db := database.New()
+	db := database.NewMigrationSvcProvider()
 
 	goose.SetBaseFS(embedMigrations)
 
@@ -29,11 +37,11 @@ func main() {
 
 	switch migrate {
 	case "up":
-		if err := goose.Up(db.DB(), "migrations"); err != nil {
+		if err := goose.Up(db.DB().DB, "migrations"); err != nil {
 			panic(err)
 		}
 	case "down":
-		if err := goose.Down(db.DB(), "migrations"); err != nil {
+		if err := goose.Down(db.DB().DB, "migrations"); err != nil {
 			panic(err)
 		}
 	default:

@@ -41,9 +41,17 @@ clean:
 	@echo "Cleaning..."
 	@rm -f main
 
-# Run migration up or down (specify with MIGRATE=up or MIGRATE=down)
-migrate:
-	@go run cmd/migrate/main.go -migrate $(MIGRATE)
+# Run migration up 
+migrate-up:
+	@go run cmd/migrate/main.go -migrate up
+
+# Run migration down
+migrate-down:
+	@go run cmd/migrate/main.go -migrate down
+
+# Create migration
+create-migration:
+	@goose -dir=cmd/migrate/migrations create $(NAME) sql
 
 # Live Reload
 watch:
