@@ -53,6 +53,10 @@ migrate-down:
 create-migration:
 	@goose -dir=cmd/migrate/migrations create $(NAME) sql
 
+# Reset database
+reset:
+	@go run cmd/reset/main.go
+
 # Live Reload
 watch:
 	@if command -v air > /dev/null; then \

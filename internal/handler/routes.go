@@ -53,8 +53,6 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Get("/health", s.healthHandler)
 
-	r.Get("/", MakeHandler("home_index", s.HandleHomeIndex))
-	r.Get("/home", MakeHandler("home_index", s.HandleHomeIndex))
 	r.Get("/login", MakeHandler("login_index", s.HandleLoginIndex))
 	r.Get("/login/provider/google", MakeHandler("login_provider_google", s.HandleLoginWithGoogle))
 	r.Post("/login", MakeHandler("login_post", s.HandleLoginPost))
@@ -65,6 +63,13 @@ func (s *Server) RegisterRoutes() http.Handler {
 
 	r.Group(func(r chi.Router) {
 		r.Use(WithAuth)
+		r.Get("/account/setup", MakeHandler("account_setup_get", s.HandleAccountSetup))
+		r.Post("/account/setup", MakeHandler("account_setup_post", s.HandleAccountPost))
+	})
+
+	r.Group(func(r chi.Router) {
+		r.Use(WithAuth, WithAccount)
+		r.Get("/", MakeHandler("home_index", s.HandleHomeIndex))
 		r.Get("/settings", MakeHandler("settings_index", s.HandleSettingsIndex))
 	})
 

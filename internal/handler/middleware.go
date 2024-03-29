@@ -2,16 +2,48 @@ package handler
 
 import (
 	"context"
+	"database/sql"
+	"errors"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
 
+	"dreampicai/internal/database"
 	"dreampicai/pkg/sb"
 	"dreampicai/types"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/sessions"
 )
+
+func WithAccount(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/public") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		user := getAuthenticatedUser(r)
+		account, err := database.GetInstance().GetAccountByUserID(r.Context(), user.ID.String())
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				http.Redirect(w, r, "/account/setup", http.StatusSeeOther)
+				return
+			}
+			const errMsg = "could not fetch account data"
+			slog.Error(errMsg, "err", err)
+			http.Error(w, errMsg, http.StatusInternalServerError)
+			return
+		}
+		user.Account = account
+
+		ctx := context.WithValue(r.Context(), types.UserContextKey, user)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	}
+
+	return http.HandlerFunc(fn)
+}
 
 func WithAuth(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {

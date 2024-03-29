@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"sync"
 	"time"
 
 	"dreampicai/types"
@@ -18,9 +19,22 @@ import (
 	"github.com/uptrace/bun/extra/bundebug"
 )
 
+var (
+	instance Service
+	once     sync.Once
+)
+
+func GetInstance() Service {
+	once.Do(func() {
+		instance = New()
+	})
+	return instance
+}
+
 type Service interface {
 	Health() map[string]string
-	CreateAccount(ctx context.Context, account *types.Account) error
+	CreateAccount(context.Context, *types.Account) error
+	GetAccountByUserID(context.Context, string) (types.Account, error)
 }
 
 type MigrationServiceProvider interface {
@@ -84,4 +98,11 @@ func (s *service) Health() map[string]string {
 func (s *service) CreateAccount(ctx context.Context, account *types.Account) error {
 	_, err := s.db.NewInsert().Model(account).Exec(ctx)
 	return err
+}
+
+func (s *service) GetAccountByUserID(ctx context.Context, id string) (types.Account, error) {
+	var acc types.Account
+	err := s.db.NewSelect().Model(&acc).Where("user_id = ?", id).Scan(ctx)
+
+	return acc, err
 }

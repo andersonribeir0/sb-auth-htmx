@@ -8,6 +8,7 @@ const (
 )
 
 type AuthenticatedUser struct {
+	Account
 	ID         uuid.UUID
 	Email      string
 	IsLoggedIn bool

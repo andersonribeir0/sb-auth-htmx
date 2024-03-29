@@ -48,8 +48,8 @@ templ LoginForm(creds supabase.UserCredentials, loginErrors LoginErrors) {
 			<div class="text-error text-sm">{ loginErrors.InvalidCredentials }</div>
 		}
 		<button type="submit" class="btn btn-primary w-full">Login <i class="fa-solid fa-arrow-right"></i></button>
-        <div class="divider">OR</div>
-        <a href="/login/provider/google" class="btn btn-outline w-full">Login with Google<i class="fa-brands fa-google"></i></a>
+		<div class="divider">OR</div>
+		<a href="/login/provider/google" class="btn btn-outline w-full">Login with Google<i class="fa-brands fa-google"></i></a>
 	</form>
 }
 
@@ -115,16 +115,53 @@ templ SignupForm(params SignupParams, errors SignupErrors) {
 	</form>
 }
 
+templ AccountSetup() {
+	@layout.App(true) {
+		<div class="max-w-xl bg-base-300 px-6 py-12 w-full mx-auto mt-4 rounded-xl">
+			<h1 class="text-accent mb-4">Setup your account</h1>
+			@AccountSetupForm(AccountSetupFormDataParams{}, AccountSetupFormDataErrors{})
+		</div>
+	}
+}
+
+type AccountSetupFormDataParams struct {
+	Username string
+}
+
+type AccountSetupFormDataErrors struct {
+	Username string
+}
+
+templ AccountSetupForm(params AccountSetupFormDataParams, errors AccountSetupFormDataErrors) {
+	<form
+ 		hx-post="/account/setup"
+ 		hx-swap="outerHTML"
+	>
+		<label class="input input-bordered flex items-center gap-2 mb-4">
+			<div class="text-accent mr-2">Username</div>
+			<input name="username" type="text" class="grow" placeholder="enter your username"/>
+			<div class="label">
+				if len(errors.Username) > 0 {
+					<span class="label-text-alt text-error">{ errors.Username }</span>
+				}
+			</div>
+		</label>
+		<button type="submit" class="btn btn-primary">Ok<span class="fa-solid fa-arrow-right"></span></button>
+	</form>
+}
+
 templ SignupSuccess(email string) {
 	<div>
-        A confirmation email has been sent to: <span class="font-semibold text-success">{ email }</span>
-    </div>
+		A confirmation email has been sent to: 
+		<span class="font-semibold text-success">{ email }</span>
+	</div>
 }
 
 templ CallbackScript() {
-    <script>
+	<script>
         var url = window.location.href;
         var newUrl = url.replace("#", "?")
         window.location = newUrl
     </script>
 }
+

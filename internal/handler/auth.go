@@ -14,6 +14,33 @@ import (
 	"github.com/nedpals/supabase-go"
 )
 
+func (s *Server) HandleAccountPost(w http.ResponseWriter, r *http.Request) error {
+	params := auth.AccountSetupFormDataParams{
+		Username: r.FormValue("username"),
+	}
+
+	var errors auth.AccountSetupFormDataErrors
+	if ok := validate.New(&params, validate.Fields{
+		"Username": validate.Rules(validate.Min(3), validate.Max(50)),
+	}).Validate(&errors); !ok {
+		return render(r, w, auth.AccountSetupForm(params, errors))
+	}
+	user := getAuthenticatedUser(r)
+	account := types.Account{
+		UserID:   user.ID,
+		Username: params.Username,
+	}
+	if err := s.db.CreateAccount(r.Context(), &account); err != nil {
+		return err
+	}
+
+	return hxRedirect(w, r, "/")
+}
+
+func (s *Server) HandleAccountSetup(w http.ResponseWriter, r *http.Request) error {
+	return render(r, w, auth.AccountSetup())
+}
+
 func (s *Server) HandleSignupIndex(w http.ResponseWriter, r *http.Request) error {
 	return render(r, w, auth.Signup())
 }

@@ -5,7 +5,6 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
 
 	"dreampicai/internal/database"
 
@@ -22,7 +21,6 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println(os.Getenv("DB_HOSTNAME"))
 	var migrate string
 	flag.StringVar(&migrate, "migrate", "", "Direction to migrate the database (up or down)")
 	flag.Parse()
