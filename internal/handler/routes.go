@@ -62,7 +62,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 	r.Post("/signup", MakeHandler("signup_post", s.HandleSignupPost))
 
 	r.Group(func(r chi.Router) {
-		r.Use(WithAuth)
+		r.Use(WithAuth, RedirectIfAccountExists)
 		r.Get("/account/setup", MakeHandler("account_setup_get", s.HandleAccountSetup))
 		r.Post("/account/setup", MakeHandler("account_setup_post", s.HandleAccountPost))
 	})
@@ -71,6 +71,7 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Use(WithAuth, WithAccount)
 		r.Get("/", MakeHandler("home_index", s.HandleHomeIndex))
 		r.Get("/settings", MakeHandler("settings_index", s.HandleSettingsIndex))
+		r.Put("/settings/account/profile", MakeHandler("settings_account_profile", s.HandleUpdateProfilePut))
 	})
 
 	return r

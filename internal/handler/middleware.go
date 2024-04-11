@@ -17,6 +17,32 @@ import (
 	"github.com/gorilla/sessions"
 )
 
+func RedirectIfAccountExists(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.URL.Path, "/public") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		user := getAuthenticatedUser(r)
+		if user.IsLoggedIn {
+			account, err := database.GetInstance().GetAccountByUserID(r.Context(), user.ID.String())
+			if err != nil && !errors.Is(err, sql.ErrNoRows) {
+				slog.Error("Error fetching account", "err", err)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				return
+			}
+
+			if len(account.UserID.String()) > 0 {
+				http.Redirect(w, r, "/", http.StatusSeeOther)
+				return
+			}
+		}
+
+		next.ServeHTTP(w, r)
+	})
+}
+
 func WithAccount(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
 		if strings.Contains(r.URL.Path, "/public") {

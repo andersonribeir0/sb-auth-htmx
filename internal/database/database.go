@@ -35,6 +35,7 @@ type Service interface {
 	Health() map[string]string
 	CreateAccount(context.Context, *types.Account) error
 	GetAccountByUserID(context.Context, string) (types.Account, error)
+	UpdateUsername(context.Context, *types.Account) error
 }
 
 type MigrationServiceProvider interface {
@@ -105,4 +106,13 @@ func (s *service) GetAccountByUserID(ctx context.Context, id string) (types.Acco
 	err := s.db.NewSelect().Model(&acc).Where("user_id = ?", id).Scan(ctx)
 
 	return acc, err
+}
+
+func (s *service) UpdateUsername(ctx context.Context, account *types.Account) error {
+	_, err := s.db.NewUpdate().
+		Model(account).
+		WherePK().
+		Exec(ctx)
+
+	return err
 }
