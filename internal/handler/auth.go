@@ -129,6 +129,40 @@ func (s *Server) HandleLogoutPost(w http.ResponseWriter, r *http.Request) error 
 	return hxRedirect(w, r, "/")
 }
 
+func (s *Server) HandleUpdatePasswordPut(w http.ResponseWriter, r *http.Request) error {
+	store := sessions.NewCookieStore([]byte(os.Getenv("SESSION_SECRET")))
+	sess, _ := store.Get(r, types.UserContextKey)
+	token, ok := sess.Values[types.AccessTokenKey]
+	if !ok {
+		return hxRedirect(w, r, "/")
+	}
+
+	var (
+		pwdErr auth.ResetPasswordErrors
+		pwdVal = auth.ResetPasswordParams{
+			Password: r.FormValue("new_password"),
+		}
+	)
+	if ok := validate.New(&pwdVal, validate.Fields{
+		"Password": validate.Rules(validate.Password, validate.Required),
+	}).Validate(&pwdErr); !ok {
+		slog.Error("invalid pwd")
+		return render(r, w, auth.ResetPasswordForm(pwdVal, pwdErr))
+	}
+
+	u, err := sb.Client.Auth.UpdateUser(r.Context(), token.(string), map[string]interface{}{
+		"password": pwdVal.Password,
+	})
+	if err != nil {
+		slog.Error("account password update failed", "err", err.Error())
+		return err
+	}
+	pwdVal.Success = true
+	slog.Info("account password updated", "user", u.Email)
+
+	return render(r, w, auth.ResetPasswordForm(pwdVal, pwdErr))
+}
+
 func (s *Server) HandleLoginWithGoogle(w http.ResponseWriter, r *http.Request) error {
 	resp, err := sb.Client.Auth.SignInWithProvider(supabase.ProviderSignInOptions{
 		Provider:   "google",

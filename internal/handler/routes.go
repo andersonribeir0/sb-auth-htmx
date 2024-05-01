@@ -72,6 +72,8 @@ func (s *Server) RegisterRoutes() http.Handler {
 		r.Get("/", MakeHandler("home_index", s.HandleHomeIndex))
 		r.Get("/settings", MakeHandler("settings_index", s.HandleSettingsIndex))
 		r.Put("/settings/account/profile", MakeHandler("settings_account_profile", s.HandleUpdateProfilePut))
+		r.Put("/settings/account/reset-password", MakeHandler("update_password", s.HandleUpdatePasswordPut))
+		r.Get("/settings/account/reset-password", MakeHandler("change_password", s.HandleChangePasswordPut))
 	})
 
 	return r

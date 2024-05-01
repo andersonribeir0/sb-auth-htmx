@@ -3,10 +3,12 @@ package settings
 import (
     "dreampicai/cmd/web/view/layout"
     "dreampicai/types"
+	"dreampicai/cmd/web/view/components"
 )
 
 type ProfileParams struct {
 	Username string
+	Success  bool
 }
 
 type ProfileErrors struct {
@@ -15,41 +17,27 @@ type ProfileErrors struct {
 
 templ Index(user types.AuthenticatedUser) {
 	@layout.App(true) {
-		<div class="max-w-2xl w-full mx-auto mt-8">
+		<div id="account-idx" class="max-w-2xl w-full mx-auto mt-8">
 			<div>
 				<h1 class="text-lg font-semibold border-b border-gray-600 pb-2">Profile</h1>
 				@ProfileForm(ProfileParams{ Username: user.Account.Username }, ProfileErrors{})
 			</div>
-			<div class="mt-10">
-				<h1 class="text-lg font-semibold border-b border-gray-600 pb-2">Change password</h1>
-				<div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0 items-center mt-8">
-					<dt class="">Current password</dt>
-					<dd class="sm:col-span-2 sm:mt-0">
-						<input name="current_password" class="input input-bordered w-full max-w-sm" />
-					</dd>
-					<dt class="">New password</dt>
-					<dd class="sm:col-span-2 sm:mt-0">
-						<input name="new_password" class="input input-bordered w-full max-w-sm" />
-					</dd>
-					<dt class="">Confirm password</dt>
-					<dd class="sm:col-span-2 sm:mt-0">
-						<input name="confirm_password" class="input input-bordered w-full max-w-sm" />
-					</dd>
-					<dt></dt>
-					<dd class="sm:col-span-2 sm:mt-0">
-						<button class="btn btn-primary">Update</button>
-					</dd>
-				</div>
+			<div id="reset-pwd" class="mt-10">
+				<h1 class="text-lg font-semibold border-b border-gray-600 pb-2">Reset Password</h1>
+				@ResetPassword("#account-idx")
 			</div>
 		</div>
 	}
 }
 
 templ ProfileForm(params ProfileParams, errors ProfileErrors) {
-	<form hx-put="/settings/account/profile" hx-swap="outerHTML">
+	<form id="profile-form" hx-put="/settings/account/profile" hx-swap="outerHTML">
 		<div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0 items-center mt-8">
 			<dt class="">Username</dt>
 			<dd class="sm:col-span-2 sm:mt-0">
+				if params.Success {
+					@components.Toast("Username updated successfully.")
+				}
 				<input class="input input-bordered w-full max-w-sm" value={ params.Username } name="username"/>
 				if len(errors.Username) > 0 {
 					<div class="label">
@@ -58,9 +46,16 @@ templ ProfileForm(params ProfileParams, errors ProfileErrors) {
 				}
 			</dd>
 			<dt></dt>
-			<dd class="sm:col-span-2 sm:mt-0">
-				<button class="btn btn-primary" type="submit">Save</button>
-			</dd>
 		</div>
 	</form>
 }
+
+templ ResetPassword(target string) {
+	<div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:px-0 items-center mt-8">
+		<dd class="sm:col-span-2 sm:mt-0">
+			<a href="/settings/account/reset-password" class="btn btn-primary">Reset password</a>
+		</dd>
+	</div>
+}
+
+

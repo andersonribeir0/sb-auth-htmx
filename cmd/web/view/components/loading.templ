@@ -1,0 +1,21 @@
+package components
+
+templ Loading() {
+	<div class="hidden" id="loading">
+		<span class="htmx-indicator loading loading-spinner loading-xs"></span>
+	</div>
+	<script>
+		document.body.addEventListener("htmx:beforeRequest", function(event) {
+			if (event.target.matches("#loading")) {
+				event.target.hidden = false; // Mostra o spinner quando a requisição começa
+			}
+		});
+
+		document.body.addEventListener("htmx:afterRequest", function(event) {
+			if (event.target.matches("#loading")) {
+				event.target.hidden = true; // Esconde o spinner quando a requisição termina
+			}
+		});
+	</script>
+}
+

@@ -2,6 +2,7 @@ package auth
 
 import (
     "dreampicai/cmd/web/view/layout"
+    "dreampicai/cmd/web/view/components"
     "github.com/nedpals/supabase-go"
 )
 
@@ -155,6 +156,52 @@ templ SignupSuccess(email string) {
 		A confirmation email has been sent to: 
 		<span class="font-semibold text-success">{ email }</span>
 	</div>
+}
+
+type ResetPasswordParams struct {
+	Password 			string
+	ConfirmPassword 	string
+	Success				bool
+}
+
+type ResetPasswordErrors struct {
+	Password 			string
+	ConfirmPassword 	string
+}
+
+templ ResetPassword(params ResetPasswordParams, errors ResetPasswordErrors) {
+	@layout.App(true) {
+		<div class="max-w-xl w-full mx-auto mt-8">
+			<div>
+				<h1 class="text-lg font-semibold border-b border-gray-700 pb-2">Reset password</h1>
+				<div class="py-6">
+					<label class="text-lable mr-4">Enter new password</label>
+					<div class="mt-2">
+						@ResetPasswordForm(ResetPasswordParams{}, ResetPasswordErrors{})
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+}
+
+templ ResetPasswordForm(params ResetPasswordParams, errors ResetPasswordErrors) {
+	<form hx-put="/settings/account/reset-password" hx-swap="outerHTML">
+		<div>
+			if params.Success {
+				@components.Toast("Password updated successfully.")
+			} else {
+				@components.Toast("Password update error.")
+			}
+			<input id="new-password" type="password" name="new_password" class="input input-bordered w-full max-w-sm"/>
+			<div class="label">
+				if len(errors.Password) > 0 {
+					<span class="label-text-alt text-error">{ errors.Password }</span>
+				}
+			</div>
+			<button class="btn btn-primary">Update</button>
+		</div>
+	</form>
 }
 
 templ CallbackScript() {

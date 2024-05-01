@@ -63,6 +63,7 @@ func WithAccount(next http.Handler) http.Handler {
 			return
 		}
 		user.Account = account
+		slog.Info("account", "data", user)
 
 		ctx := context.WithValue(r.Context(), types.UserContextKey, user)
 		next.ServeHTTP(w, r.WithContext(ctx))

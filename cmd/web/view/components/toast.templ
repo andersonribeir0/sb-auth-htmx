@@ -1,0 +1,15 @@
+package components
+
+templ Toast(message string) {
+	<div class="toast toast-top toast-end" id="toast">
+		<div class="alert alert-success">
+			<span>{ message }</span>
+		</div>
+	</div>
+    <script>
+        setTimeout(function() {
+            $('#toast').fadeOut('fast');
+        }, 2000);
+    </script>
+}
+

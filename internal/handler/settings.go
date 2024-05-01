@@ -4,6 +4,7 @@ import (
 	"log/slog"
 	"net/http"
 
+	"dreampicai/cmd/web/view/auth"
 	"dreampicai/cmd/web/view/settings"
 	"dreampicai/pkg/kit/validate"
 )
@@ -35,5 +36,20 @@ func (s *Server) HandleUpdateProfilePut(w http.ResponseWriter, r *http.Request) 
 		return err
 	}
 
+	params.Success = true
+
 	return render(r, w, settings.ProfileForm(params, settings.ProfileErrors{}))
+}
+
+func (s *Server) HandleChangePasswordPut(w http.ResponseWriter, r *http.Request) error {
+	user := getAuthenticatedUser(r)
+
+	// if err := sb.Client.Auth.ResetPasswordForEmail(r.Context(), user.Email); err != nil {
+	// 	slog.Error("reset password for email failed", "err", err)
+	// 	return err
+	// }
+
+	slog.Info("mail sent", "email", user.Email)
+
+	return render(r, w, auth.ResetPassword(auth.ResetPasswordParams{}, auth.ResetPasswordErrors{}))
 }
